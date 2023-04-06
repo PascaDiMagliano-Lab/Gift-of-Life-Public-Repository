@@ -9,6 +9,8 @@ suppressPackageStartupMessages({
 })
 
 merged_samples <- readRDS('../../results/merged_samples_fil_correctedcounts_w_extra_10.rds')
+## Samples 4450-EC and 4451-EC will be discarded from the analysis due to quality issues
+merged_samples <- merged_samples[,!(merged_samples$sample_name %in% c("4450-EC","4451-EC"))] 
 DefaultAssay(merged_samples) <- 'CorrectedCounts'
 
 ##################################################################

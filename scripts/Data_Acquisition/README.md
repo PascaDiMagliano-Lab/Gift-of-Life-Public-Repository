@@ -1,1 +1,1 @@
-Script for acquisition of samples feature matrices will be added here once samples are uploaded to public repos (e.g. dbGAP, GEO)
+Sequencing files can be acquired from dbGAP (Phs003229). Samples were aligned to hg38 using cellranger v6 on the University of Michigan HPC. Samples count matrices can be found [here](../../data/samples)

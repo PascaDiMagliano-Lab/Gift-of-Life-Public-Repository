@@ -168,24 +168,35 @@ cowplot::plot_grid(pre, limma_post)
 ##                             DGE                             ##
 #################################################################
 
-pan_markers <- extract_pan_markers(ns_object = ns_object, group = "cell_type",
+pData(ns_object)$cell_type_DS <- paste0(pData(ns_object)$cell_type, "_", pData(ns_object)$DiseaseState)
+## Tumor ADM region of interest was removed due to low power
+ns_object <- ns_object[,pData(ns_object)$cell_type_DS != "ADM_Tumor"]
+pan_markers <- extract_pan_markers(ns_object = ns_object, group = "cell_type_DS",
                                    grouping_var = "tissue",
                                    pCutOff = 1, fcCutOff = -Inf)
-## Top 20 markers
-panin_pan_markers <- pan_markers %>% filter(Contrast == "PanIN" & p_adj < 0.05) %>% top_n(20, logFC) %>% pull(Gene)
-adm_pan_markers <- pan_markers %>% filter(Contrast == "ADM" & p_adj < 0.05) %>% top_n(20, logFC) %>% pull(Gene)
-acinar_pan_markers <- pan_markers %>% filter(Contrast == "Acinar" & p_adj < 0.05) %>% top_n(20, logFC) %>% pull(Gene)
-ductal_pan_markers <- pan_markers %>% filter(Contrast == "Duct" & p_adj < 0.05) %>% top_n(20, logFC) %>% pull(Gene)
-Glandular_Tumor_pan_markers <-  pan_markers %>% filter(Contrast == "Glandular_Tumor" & p_adj < 0.05) %>% top_n(20, logFC) %>% pull(Gene)
-PoorlyDiffTumor_pan_markers <-  pan_markers %>% filter(Contrast == "PoorlyDiffTumor" & p_adj < 0.05) %>% top_n(20, logFC) %>% pull(Gene)
+write.csv(pan_markers, "../../results/08_spatial_data_analysis/markers_cellType_diseaseState.csv")
 
-markers_list <- list('acinar_markers' = acinar_pan_markers,
+## Top 20 markers
+tumor_panin_pan_markers <- pan_markers %>% filter(Contrast == "PanIN_Tumor" & p_adj < 0.05) %>% top_n(20, logFC) %>% pull(Gene)
+healthy_panin_pan_markers <- pan_markers %>% filter(Contrast == "PanIN_Healthy" & p_adj < 0.05) %>% top_n(20, logFC) %>% pull(Gene)
+adm_pan_markers <- pan_markers %>% filter(Contrast == "ADM_Healthy" & p_adj < 0.05) %>% top_n(20, logFC) %>% pull(Gene)
+healthy_acinar_pan_markers <- pan_markers %>% filter(Contrast == "Acinar_Healthy" & p_adj < 0.05) %>% top_n(20, logFC) %>% pull(Gene)
+tumor_acinar_pan_markers <- pan_markers %>% filter(Contrast == "Acinar_Tumor" & p_adj < 0.05) %>% top_n(20, logFC) %>% pull(Gene)
+healthy_ductal_pan_markers <- pan_markers %>% filter(Contrast == "Duct_Healthy" & p_adj < 0.05) %>% top_n(20, logFC) %>% pull(Gene)
+tumor_ductal_pan_markers <- pan_markers %>% filter(Contrast == "Duct_Tumor" & p_adj < 0.05) %>% top_n(20, logFC) %>% pull(Gene)
+Glandular_Tumor_pan_markers <-  pan_markers %>% filter(Contrast == "Glandular_Tumor_Tumor" & p_adj < 0.05) %>% top_n(20, logFC) %>% pull(Gene)
+PoorlyDiffTumor_pan_markers <-  pan_markers %>% filter(Contrast == "PoorlyDiffTumor_Tumor" & p_adj < 0.05) %>% top_n(20, logFC) %>% pull(Gene)
+
+markers_list <- list('healthy_acinar_markers' = healthy_acinar_pan_markers,
+                     'tumor_acinar_markers' = tumor_acinar_pan_markers,
                      'adm_markers' = adm_pan_markers,
-                     'ductal_markers' = ductal_pan_markers,
-                     'panin_markers' = panin_pan_markers,
-                      'Glandular_Tumor_markers' = Glandular_Tumor_pan_markers,
+                     'healthy_ductal_markers' = healthy_ductal_pan_markers,
+                     'tumor_ductal_markers' = tumor_ductal_pan_markers,
+                     'healthy_panin_markers' = healthy_panin_pan_markers,
+                     'tumor_panin_markers' = tumor_panin_pan_markers,
+                     'Glandular_Tumor_markers' = Glandular_Tumor_pan_markers,
                      'PoorlyDiffTumor_markers' = PoorlyDiffTumor_pan_markers
-                      )
+)
 
 saveRDS(markers_list, "../../results/lmm_main_labels_markers_list.rds")
 
@@ -194,7 +205,7 @@ saveRDS(markers_list, "../../results/lmm_main_labels_markers_list.rds")
 #################################################################
 
 markers_df <- assayDataElement(ns_object, elt = "log_q")[unlist(markers_list),]
-annot_df <- data.frame(cell_type = pData(ns_object)$cell_type, row.names = colnames(ns_object))
+annot_df <- data.frame(cell_type = pData(ns_object)$cell_type_DS, row.names = colnames(ns_object))
 annot_df$cell_type <- factor(annot_df$cell_type, levels = c("Acinar","ADM", "Duct","PanIN","Glandular_Tumor","PoorlyDiffTumor"))
 levels(annot_df$cell_type)
 
@@ -240,21 +251,19 @@ ns_object <- readRDS("pooled_analysis_objects/processed_ns_object.RDS")
 subtypes_geneSets <- list("Collison_Exocrine_Like" = collison_gs$Collison_Exocrine_Like, "Baily_ADEX" = baily_gs$Baily_ADEX,
                           "Collison_Classical" = collison_gs$Collison_Classical, "Baily_Classical" = baily_gs$Baily_Classical,"Moffit_Classical" = moffit_gs$Moffit_Classical,
                           "Collison_Basal" = collison_gs$Collison_Basal, "Baily_Basal" = baily_gs$Baily_Basal, "Moffit_Basal" = moffit_gs$Moffit_Basal)
-lesions_count_mt <- ns_object[,pData(ns_object)$main_label %in% c("Acinar", "Duct", "PanIN", "ADM", "Tumor")]
+lesions_count_mt <- ns_object[,pData(ns_object)$cell_type %in% c("Acinar", "Duct", "PanIN", "ADM", "Tumor")]
 pdac_subtype_gvsa <- gsva(expr = assayDataElement(lesions_count_mt, elt = "q_norm"),
                           gset.idx.list = subtypes_geneSets)
-pData(lesions_count_mt)$cell_type <- factor(pData(lesions_count_mt)$cell_type, levels = c("Acinar","ADM","PanIN","Duct","Glandular_Tumor","PoorlyDiffTumor"))
+pData(lesions_count_mt)$cell_type <- factor(pData(lesions_count_mt)$cell_type_DS, levels = c("Acinar_Tumor", "Acinar_Healthy","ADM_Healthy","PanIN_Tumor","PanIN_Healthy", "Duct_Tumor","Duct_Healthy","Glandular_Tumor_Tumor","PoorlyDiffTumor_Tumor"))
 pdac_subtype_gvsa <- pdac_subtype_gvsa[,order(pData(lesions_count_mt)$cell_type)]
 sample_type <- data.frame(pData(lesions_count_mt)$cell_type[order(pData(lesions_count_mt)$cell_type)], row.names = colnames(pdac_subtype_gvsa)) %>%
   `colnames<-`('cell_type')
 sign_type <- data.frame(c("NA","NA","Classical","Classical","Classical","Basal","Basal","Basal"), row.names = names(subtypes_geneSets)) %>%
   `colnames<-`("Class")
-ann_colors <- list(Class = c("NA" = 'black', "Classical" = "blue", "Basal" = "red"),
-                   cell_type = c("Acinar" = 'yellow', "ADM" = "orange", "PanIN" = "darkred", "Duct" = "darkgreen", "Glandular_Tumor" = "darkblue", "PoorlyDiffTumor" = "purple"))
+ann_colors <- list(Class = c("NA" = 'black', "Classical" = "blue", "Basal" = "red"))
 
 pheatmap(pdac_subtype_gvsa,
          annotation_col = sample_type, annotation_row = sign_type, annotation_colors = ann_colors,
-         gaps_col = c(44,76,164,210,245), gaps_row = c(2,5),
          show_colnames = F, scale = "column", cluster_cols = F, cluster_rows = F,
          annotation_names_col = F)
 

@@ -25,6 +25,12 @@ samples_dir <- list.files("../../data/samples/", full.names = T)
 ##           Ambient RNA Correction (w +10% and Cap)           ##
 #################################################################
 
+## Ambient RNA correction was done using soupX were the contamination fraction
+## is estimated from empty droplets and negative markers. An extra 10% was added
+## as per the authors recommendation to remove 95-98% of the soup (ambient RNA).
+## https://cran.r-project.org/web/packages/SoupX/vignettes/pbmcTutorial.html
+## while capping the contamination fraction to 20%
+
 clust <- makeCluster(detectCores())
 clusterExport(clust,
               c("correct_reads"),

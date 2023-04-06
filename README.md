@@ -1,4 +1,4 @@
-This repository contains code used for single-cell and spatial transcriptomics data analysis in the [Analysis of donor pancreases defines the transcriptomic signature and microenvironment of early pre-neoplastic pancreatic lesions](link) paper.
+This repository contains code used for single-cell and spatial transcriptomics data analysis in the [Analysis of donor pancreases defines the transcriptomic signature and microenvironment of early pre-neoplastic pancreatic lesions](https://aacrjournals.org/cancerdiscovery/article/doi/10.1158/2159-8290.CD-23-0013/725128/Analysis-of-donor-pancreata-defines-the) paper.
 
 ## How to use this repo to reproduce the analysis done in the paper?
 

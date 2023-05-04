@@ -1,1 +1,3 @@
+Donor scRNAseq raw sequencing files can be acquired from [here](https://www.ncbi.nlm.nih.gov/projects/gap/cgi-bin/study.cgi?study_id=phs003229.v1.p1), and tumor scRNAseq raw sequencing files can be acquired from [here](https://www.ncbi.nlm.nih.gov/projects/gap/cgi-bin/study.cgi?study_id=phs002071.v1.p1). 
 
+Samples were aligned to hg38 using cellranger v6 on the University of Michigan HPC. scRNAseq samples count matrices can be found [here](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE229413), and spatial transcriptomics raw data can be found [here](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE226829)

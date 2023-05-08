@@ -26,4 +26,6 @@ Differential abundance analysis was done using [miloR R Package](https://github.
 
 Spatial transcriptomics was done using the Nanostring GeoMx platform. Segments QC was done to remove the low quality segments and genes with low detection level as recommeded by Nanostring using [GeoMxWorkflows R Package](https://github.com/Nanostring-Biostats/GeoMxWorkflows), then, differential gene expression was done in [`01_DGE_analysis.R`](scripts/Spatial_Transcriptomics_Analysis/01_DGE_analysis.R). Mapping of marker gene sets derived from spatial transcriptomics onto the single cell data was done using [`02_mapping_markers_to_SC.R`](scripts/Spatial_Transcriptomics_Analysis/02_mapping_markers_to_SC.R)
  
-If you have any questions, please feel free to reach out to Marina Pasca di Maglinao [marinapa@med.umich.edu](mailto:marinapa@med.umich.edu), Eileen Carpenter [eicarpen@med.umich.edu](mailto:eicarpen@med.umich.edu), or Ahmed Elhossiny [hossiny@umich.edu](mailto:hossiny@umich.edu) 
+*** 
+
+If you have any questions, please feel free to reach out to Marina Pasca di Maglinao [(marinapa@med.umich.edu)](mailto:marinapa@med.umich.edu), Eileen Carpenter [(eicarpen@med.umich.edu)](mailto:eicarpen@med.umich.edu), or Ahmed Elhossiny [(hossiny@umich.edu)](mailto:hossiny@umich.edu) 

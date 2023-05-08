@@ -12,7 +12,7 @@ This repository contains code used for single-cell and spatial transcriptomics d
 
 ## Data Acquisition
 
-Instructions for data acquisition is described under [`Data_Acquisition`](scripts/Data_Acquisition) folder. Input data will be stored under `data/samples` folder.
+Instructions for data acquisition is described under [`Data_Acquisition`](scripts/Data_Acquisition) folder. Input data will be stored under `data/` folder.
 
 ## Data Processing
 

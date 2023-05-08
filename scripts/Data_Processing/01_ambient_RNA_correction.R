@@ -9,6 +9,7 @@ suppressPackageStartupMessages({
   library(cowplot)
   library(grid)
   library(gridExtra)
+  library(tidyverse)
   source("../../src/correct_reads_function.r")
 })
 
@@ -17,9 +18,20 @@ suppressPackageStartupMessages({
 ##                        loading files                        ##
 #################################################################
 
-samples_names <- list.files("../../data/samples/")
-samples_dir <- list.files("../../data/samples/", full.names = T)
+## Organizing files into folders for each sample
 
+dataDir <- "../../data/GSE229413_RAW/"
+samples_names <- list.files(dataDir) %>%
+  gsub(pattern = "_filtered_feature_bc_matrix.h5|_raw_feature_bc_matrix.h5|^GSM[0-9]*_", replacement = "") %>% unique()
+
+sapply(samples_names, function(x){
+  files <- list.files(dataDir, pattern = paste0(x,"_"), include.dirs = F)
+  dir.create(file.path(dataDir,x), showWarnings = F, recursive = T)
+  sapply(files, function(y){file.rename(from = file.path(dataDir,y), to = file.path(dataDir,x,y))})
+})
+
+samples_names <- list.files("../../data/GSE229413_RAW")
+samples_dir <- list.files("../../data/GSE229413_RAW", full.names = T)
 
 #################################################################
 ##           Ambient RNA Correction (w +10% and Cap)           ##
@@ -39,7 +51,7 @@ clusterExport(clust,
 corrected_samples <-
   parLapply(clust,
             samples_dir,
-            fun = function(x){correct_reads(data_dir = x,  extra = 0.1, cap = TRUE)}
+            fun = function(x){correct_reads(data_dir = x,  extra = 0.1, cap = TRUE, h5 = TRUE)}
   )
 
 stopCluster(clust)

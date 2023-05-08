@@ -17,8 +17,8 @@ tar -xzvf GSE229413_RAW.tar --directory GSE229413_RAW
 
 Similarly, you can download the `.dcc` files using this [link](ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE226nnn/GSE226829/suppl/GSE226829_RAW.tar), move them to "data" folder and extract the .tar file into a folder with the same name (GSE226829_RAW). We'll also need to download the following files
 
-[pkc file]("ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE226nnn/GSE226829/suppl/GSE226829_Hs_R_NGS_WTA_v1.0.pkc.gz")
-[segment annotation file]("ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE226nnn/GSE226829/suppl/GSE226829_PreQC_segments_annotation.xlsx")
+* [pkc file]("ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE226nnn/GSE226829/suppl/GSE226829_Hs_R_NGS_WTA_v1.0.pkc.gz")
+* [segment annotation file]("ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE226nnn/GSE226829/suppl/GSE226829_PreQC_segments_annotation.xlsx")
 
 or run the following command from terminal while being in the 'data' folder
 

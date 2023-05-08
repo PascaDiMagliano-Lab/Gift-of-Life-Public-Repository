@@ -29,35 +29,34 @@ suppressPackageStartupMessages({
   library(org.Hs.eg.db)
   library(clusterProfiler)
   library(VennDiagram)
+  library(R.utils)
   source("../../src/geomx_utils.R")
 })
 
 ## Importing data
-## This section will be re-written after uploading GeoMx to GEO
-DCCFiles <- list.files("../../data/spatial_transcriptomics/dcc/", full.names = T, pattern = ".dcc$")
-PKCFiles <- "../../data/spatial_transcriptomics/Hs_R_NGS_WTA_v1.0.pkc"
-SampleAnnotationFile <- ("../../data/spatial_transcriptomics/pooled_annotation_eileen_10-5-22.xlsx")
+
+## uncompressing the files and renaming them to match the files names in the metadata sheet
+dccfilesDir <- "../../data/GSE226829_RAW/"
+sapply(list.files(dccfilesDir, full.names = T), gunzip, remove = T)
+newname <- sub('^GSM[0-9]*_','', list.files(dccfilesDir))
+file.rename(list.files(dccfilesDir, full.names = T),
+            file.path(dccfilesDir, newname))
+DCCFiles <- list.files("../../data/GSE226829_RAW/", full.names = T, pattern = ".dcc$")
+gunzip("../../data/GSE226829_Hs_R_NGS_WTA_v1.0.pkc.gz", remove = T)
+PKCFiles <- "../../data/GSE226829_Hs_R_NGS_WTA_v1.0.pkc"
+SampleAnnotationFile <- ("../../data/GSE226829_PreQC_segments_annotation.xlsx")
 
 ns_object <-
   readNanoStringGeoMxSet(dccFiles = DCCFiles,
                          pkcFiles = PKCFiles,
                          phenoDataFile = SampleAnnotationFile,
-                         phenoDataSheet = "sheet1",
-                         phenoDataDccColName = "Sample_ID",
-                         experimentDataColNames = c("panel"))
+                         phenoDataSheet = "Sheet 1",
+                         phenoDataDccColName = "library name")
 
-pkcs <- annotation(ns_object)
-modules <- gsub(".pkc", "", pkcs)
-pData(ns_object)$cell_type <- pData(ns_object)$`Cell Type_Updated`
 pData(ns_object)$sample <- pData(ns_object)$patient_id
 pData(ns_object)$tissue <- paste(pData(ns_object)$patient_id, pData(ns_object)$Location, sep = "_")
-pData(ns_object)$main_label <-
-  gsub(pattern = "MettoLN|Glandular_Tumor|PoorlyDiffTumor|TumorNerve",replacement = "Tumor", pData(ns_object)$cell_type)
-count_mat <- dplyr::count(pData(ns_object), `scan name`, patient_id, main_label)
-test_gr <- gather_set_data(count_mat, 1:3)
-test_gr$x <- factor(test_gr$x,
-                    levels = c("scan name","patient_id", "main_label"))
-ns_object <- ns_object[,pData(ns_object)$cell_type %in% c("Acinar", "Duct", "PanIN", "ADM", "Tumor")]
+pData(ns_object)$cell_type_DS <- paste0(pData(ns_object)$cell_type,"_",pData(ns_object)$DiseaseStatus)
+
 
 #################################################################
 ##                  Data QC and Normalization                  ##
@@ -65,15 +64,17 @@ ns_object <- ns_object[,pData(ns_object)$cell_type %in% c("Acinar", "Duct", "Pan
 
 ## QC
 ns_object <- runQC(ns_object, stringent = TRUE)
-ns_object <- ns_object[,!(pData(ns_object)$cell_type %in% c("MettoLN","TumorNerve"))]
-# pData(ns_object)$cell_type <- factor(pData(ns_object)$cell_type, levels = c("Acinar","ADM","Duct","PanIN","Glandular_Tumor","PoorlyDiffTumor"))
+
+## Removing "ADM_Tumor" due to low power
+ns_object <- ns_object[,pData(ns_object)$cell_type_DS != 'ADM_Tumor']
 
 ## Data Summary
 ## Plot
-count_mat <- dplyr::count(pData(ns_object), patient_id, cell_type)
-test_gr <- gather_set_data(count_mat, 1:2)
-test_gr$x <- factor(test_gr$x,
-                    levels = c("patient_id","cell_type"))
+
+count_mat <- dplyr::count(pData(ns_object), `slide name`, patient_id,DiseaseStatus, cell_type)
+test_gr <- gather_set_data(count_mat, 1:4)
+test_gr$x <- factor(test_gr$x, labels = c("slide name","patient_id", "DiseaseStatus", "cell_type"))
+
 
 ggplot(test_gr, aes(x, id = id, split = y, value = n)) +
   geom_parallel_sets(aes(fill = cell_type), alpha = 0.5, axis.width = 0.1) +
@@ -91,11 +92,10 @@ ggplot(test_gr, aes(x, id = id, split = y, value = n)) +
   labs(x = "", y = "")
 
 ## Summary
-summary_table <- t(as.data.frame.matrix(table(pData(ns_object)[,c("patient_id","cell_type")]))) %>%
+summary_table <- t(as.data.frame.matrix(table(pData(ns_object)[,c("patient_id","cell_type_DS")]))) %>%
   as.data.frame() %>%
   mutate(total = rowSums(.))
 summary_table$bio_rep <- apply(summary_table, 1, function(x){sum(x[1:6]!=0)})
-write.csv(summary_table, "pooled_analysis_plots/summary_table.csv")
 
 ## Normalization
 ns_object <- normalize(ns_object,
@@ -158,7 +158,7 @@ limma_post <- biplot(limma_cor_pca, showLoadings = F, boxedLoadingsNames = T,
                      colby = 'cell_type', lab = pData(ns_object)$roi, shape = "sample",
                      title = "post batch correction", subtitle = NULL,
                      labSize = 5, pointSize = 3, drawConnectors = T,
-                     legendPosition = 'right', colkey = getPalette(colourCount),
+                     legendPosition = 'right',,
                      legendLabSize = 7, legendIconSize = 4, legendTitleSize = 10,
                      encircle = T, encircleAlpha = 0.15)
 
@@ -168,13 +168,10 @@ cowplot::plot_grid(pre, limma_post)
 ##                             DGE                             ##
 #################################################################
 
-pData(ns_object)$cell_type_DS <- paste0(pData(ns_object)$cell_type, "_", pData(ns_object)$DiseaseState)
-## Tumor ADM region of interest was removed due to low power
-ns_object <- ns_object[,pData(ns_object)$cell_type_DS != "ADM_Tumor"]
 pan_markers <- extract_pan_markers(ns_object = ns_object, group = "cell_type_DS",
                                    grouping_var = "tissue",
                                    pCutOff = 1, fcCutOff = -Inf)
-write.csv(pan_markers, "../../results/08_spatial_data_analysis/markers_cellType_diseaseState.csv")
+write.csv(pan_markers, "../../results/markers_cellType_diseaseState.csv")
 
 ## Top 20 markers
 tumor_panin_pan_markers <- pan_markers %>% filter(Contrast == "PanIN_Tumor" & p_adj < 0.05) %>% top_n(20, logFC) %>% pull(Gene)
@@ -206,16 +203,13 @@ saveRDS(markers_list, "../../results/lmm_main_labels_markers_list.rds")
 
 markers_df <- assayDataElement(ns_object, elt = "log_q")[unlist(markers_list),]
 annot_df <- data.frame(cell_type = pData(ns_object)$cell_type_DS, row.names = colnames(ns_object))
-annot_df$cell_type <- factor(annot_df$cell_type, levels = c("Acinar","ADM", "Duct","PanIN","Glandular_Tumor","PoorlyDiffTumor"))
-levels(annot_df$cell_type)
+annot_df$cell_type <- factor(annot_df$cell_type)
 
 pheatmap(markers_df[,order(annot_df$cell_type)],
          color =  colorRampPalette(c("blue","white", "red"))(100) ,
-         # color = colorRampPalette(rev(brewer.pal(n = 7, name ="RdYlBu")))(100),
          show_colnames = F,fontsize_row = 5,
          show_rownames = T, cluster_rows = F, cluster_cols = F,annotation_names_col = F,
          scale = "row", annotation_col = annot_df %>% arrange(cell_type))
-
 
 #################################################################
 ##              PDAC Subtype Signature Enrichment              ##
@@ -247,7 +241,7 @@ baily_gs[['Baily_ADEX']] <- c('REG3G','SYCN','REG1P','SERPINI2','CPB1','RP11-331
 # baily_gs[['Baily_Immunogenic']] <-  c('IGHV3-15','IGHV3-7','IGHV1-46','IGKV2-28','IGHV3-23','IGHV3-53','IGHV5-51','IGHA1','IGKV4-1','IGLV2-23','IGLV1-40','IGKV3-11','IGLL5','IGJ','IGLC3','IGKVLD-39','IGLV2-14','AC096579.7','IGKV3-20','IGKC','CSF1R','TYROBP','FCER1G','TLR8','C3AR1','CD86','WAS','SPI1','HAVCR2','SASH3','CYBB','MS4A4A','BTK','LAPTM5','PTPRC','MARCH1','CD53','AIF1','DOCK2','NCKAP1L','SIT1','GIMAP4','GPR174','SEPT1','CXCR6','ITK','TBC1D10C','GIMAP5','CD96','ZNF831','GZMK','PTPRCAP','SLAMF1','P2RY10','CD48','THEMIS','CD3E','CD3D','SH2D1A','CD2')
 
 ## Via GVSA
-ns_object <- readRDS("pooled_analysis_objects/processed_ns_object.RDS")
+ns_object <- readRDS("../../results/processed_ns_object.RDS")
 subtypes_geneSets <- list("Collison_Exocrine_Like" = collison_gs$Collison_Exocrine_Like, "Baily_ADEX" = baily_gs$Baily_ADEX,
                           "Collison_Classical" = collison_gs$Collison_Classical, "Baily_Classical" = baily_gs$Baily_Classical,"Moffit_Classical" = moffit_gs$Moffit_Classical,
                           "Collison_Basal" = collison_gs$Collison_Basal, "Baily_Basal" = baily_gs$Baily_Basal, "Moffit_Basal" = moffit_gs$Moffit_Basal)

@@ -31,9 +31,5 @@ auc_score_scaled <- as.data.frame(scale(auc_score))
 acinar_ductal <- AddMetaData(acinar_ductal, metadata = auc_score)
 DimPlot(acinar_ductal, group.by = "DiseaseState", raster = T, cols = c("black","red","blue"), pt.size = 1) + ggtitle("Epithelial Population")
 FeaturePlot(acinar_ductal, ncol = 3, pt.size = 0.5,
-            features = c("panin_markers","adm_markers", "acinar_markers", "ductal_markers", "Glandular_Tumor_markers", "PoorlyDiffTumor_markers"),
+            features = c('healthy_acinar_markers','tumor_acinar_markers','adm_markers','healthy_ductal_markers','tumor_ductal_markers','healthy_panin_markers','tumor_panin_markers','Glandular_Tumor_markers','PoorlyDiffTumor_markers'),
             repel = TRUE, order = F, keep.scale = 'feature', col = rev(brewer.pal(n = 11, name = "RdBu")))
-
-
-
-

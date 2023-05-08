@@ -41,6 +41,8 @@ sapply(list.files(dccfilesDir, full.names = T), gunzip, remove = T)
 newname <- sub('^GSM[0-9]*_','', list.files(dccfilesDir))
 file.rename(list.files(dccfilesDir, full.names = T),
             file.path(dccfilesDir, newname))
+
+## creating nanostring object
 DCCFiles <- list.files("../../data/GSE226829_RAW/", full.names = T, pattern = ".dcc$")
 gunzip("../../data/GSE226829_Hs_R_NGS_WTA_v1.0.pkc.gz", remove = T)
 PKCFiles <- "../../data/GSE226829_Hs_R_NGS_WTA_v1.0.pkc"
@@ -53,10 +55,11 @@ ns_object <-
                          phenoDataSheet = "Sheet 1",
                          phenoDataDccColName = "library name")
 
+
+## adding some metadata
 pData(ns_object)$sample <- pData(ns_object)$patient_id
 pData(ns_object)$tissue <- paste(pData(ns_object)$patient_id, pData(ns_object)$Location, sep = "_")
 pData(ns_object)$cell_type_DS <- paste0(pData(ns_object)$cell_type,"_",pData(ns_object)$DiseaseStatus)
-
 
 #################################################################
 ##                  Data QC and Normalization                  ##
@@ -70,11 +73,9 @@ ns_object <- ns_object[,pData(ns_object)$cell_type_DS != 'ADM_Tumor']
 
 ## Data Summary
 ## Plot
-
 count_mat <- dplyr::count(pData(ns_object), `slide name`, patient_id,DiseaseStatus, cell_type)
 test_gr <- gather_set_data(count_mat, 1:4)
 test_gr$x <- factor(test_gr$x, labels = c("slide name","patient_id", "DiseaseStatus", "cell_type"))
-
 
 ggplot(test_gr, aes(x, id = id, split = y, value = n)) +
   geom_parallel_sets(aes(fill = cell_type), alpha = 0.5, axis.width = 0.1) +

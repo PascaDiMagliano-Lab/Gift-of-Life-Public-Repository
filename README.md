@@ -7,7 +7,6 @@ Carpenter ES, Elhossiny AM, Kadiyala P, Li J, McGue J, Griffith BD, Zhang Y, Edw
 * `data` folder contains instructions for downloading data from GEO and samples metadata spreadsheet, along with other low-size input data.
 * `scripts` folder contains sub-folders for each section of the analysis.
 * `results` folder will be the output directory for the scripts. 
-* `doc` contains reports for the results of the analysis. 
 * `src` folder contains utility functions that are called within other scripts for a cleaner code.
 
 *** 

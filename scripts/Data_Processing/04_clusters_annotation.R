@@ -87,9 +87,9 @@ DotPlot(integrated_data,
   coord_flip() + ggtitle("Corrected Counts")
 
 metadata <- integrated_data@meta.data[,c("DiseaseState","lesion")]
-metadata$lesion <- gsub("PanIN","Tumor",metadata$lesion)
-metadata[metadata$DiseaseState == "AdjNormal","lesion"] <- "AdjNorm"
-metadata[is.na(metadata$lesion),"lesion"] <- "Lesion"
+## metadata$lesion <- gsub("PanIN","Tumor",metadata$lesion)
+## metadata[metadata$DiseaseState == "AdjNormal","lesion"] <- "AdjNorm"
+## metadata[is.na(metadata$lesion),"lesion"] <- "Lesion"
 integrated_data$lesion <- metadata$lesion
 
 # Saving results

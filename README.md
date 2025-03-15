@@ -1,6 +1,6 @@
 This repository contains code used for single-cell and spatial transcriptomics data analysis in the 
 
-<img width="988" height="600" alt="Screenshot 2025-03-15 at 2 47 29 AM" src="https://github.com/user-attachments/assets/52f2214c-0f9c-4693-927c-84c28a16052e" />
+<img width="988" height="450" alt="Screenshot 2025-03-15 at 2 47 29 AM" src="https://github.com/user-attachments/assets/52f2214c-0f9c-4693-927c-84c28a16052e" />
 
 Carpenter ES, Elhossiny AM, Kadiyala P, Li J, McGue J, Griffith BD, Zhang Y, Edwards J, Nelson S, Lima F, Donahue KL, Du W, Bischoff AC, Alomari D, Watkoske HR, Mattea M, The S, Espinoza CE, Barrett M, Sonnenday CJ, Olden N, Chen CT, Peterson N, Gunchick V, Sahai V, Rao A, Bednar F, Shi J, Frankel TL, Pasca di Magliano M. Analysis of donor pancreata defines the transcriptomic signature and microenvironment of early neoplastic lesions. Cancer Discov. 2023 Apr 6:CD-23-0013. doi: [10.1158/2159-8290.CD-23-0013](https://aacrjournals.org/cancerdiscovery/article/doi/10.1158/2159-8290.CD-23-0013/725128/Analysis-of-donor-pancreata-defines-the) .PMID: 37021392.
 

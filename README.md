@@ -4,7 +4,7 @@ Carpenter ES, Elhossiny AM, Kadiyala P, Li J, McGue J, Griffith BD, Zhang Y, Edw
 
 You can explore the single cell data of this paper using our interactive ShinyApp (https://pascadimaglianolab.shinyapps.io/SC_Pancreas_Atlas/)
 
-<img width="500" height="500" alt="Screenshot 2025-03-15 at 2 44 45 AM" src="https://github.com/user-attachments/assets/1922f3ed-867d-411d-98da-c6552b14dd17" />
+<img width="700" height="500" alt="Screenshot 2025-03-15 at 2 44 45 AM" src="https://github.com/user-attachments/assets/1922f3ed-867d-411d-98da-c6552b14dd17" />
 
 ## How to use this repo to reproduce the analysis done in the paper?
 
